@@ -44,12 +44,13 @@ spec:
             - name: api
               containerPort: {{ .Values.service.api }}
               protocol: TCP
-            - name: srt
-              containerPort: {{ .Values.service.srt }}
-              protocol: UDP
-            - name: rtc
-              containerPort: {{ .Values.service.rtc }}
-              protocol: UDP
+              # Add when using two loadbalancers
+            # - name: srt
+            #   containerPort: {{ .Values.service.srt }}
+            #   protocol: UDP
+            # - name: rtc
+            #   containerPort: {{ .Values.service.rtc }}
+            #   protocol: UDP
           env:
             # The general default config.
             - name: SRS_LISTEN
