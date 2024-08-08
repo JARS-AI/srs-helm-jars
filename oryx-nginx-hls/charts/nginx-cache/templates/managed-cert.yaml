@@ -4,4 +4,5 @@ metadata:
   name: nginx-cache-https
 spec:
   domains:
-    - stream.jars.ai
+    - stream-dev.jars.ai
+    - oryx-dev.jars.ai
