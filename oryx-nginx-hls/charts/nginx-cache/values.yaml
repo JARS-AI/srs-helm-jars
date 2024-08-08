@@ -17,7 +17,7 @@ fullnameOverride: ""
 # The configuration for nginx cach.
 # must have SRS_M3U8_EXPIRE, SRS_TS_EXPIRE
 conf:
-  SRS_M3U8_EXPIRE: 10
+  SRS_M3U8_EXPIRE: 2
   SRS_TS_EXPIRE: 3600
 
 serviceAccount:
@@ -31,7 +31,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+podAnnotations: 
+  timestamp: "10"
 podLabels: {}
 
 podSecurityContext:
@@ -49,20 +50,21 @@ securityContext:
 
 service:
   type: LoadBalancer
-  port: 80
+  port: 1080
 
 ingress:
-  enabled: false
+  enabled: true
   className: ""
   annotations:
-    {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.global-static-ip-name: oryx-nginx-hls
+    networking.gke.io/managed-certificates: nginx-cache-https
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/v1beta1.FrontendConfig: "http-to-https"
   hosts:
-    - host: chart-example.local
+    - host: stream.jars.ai
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -92,8 +94,8 @@ readinessProbe:
 
 autoscaling:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
 

@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ffmpeg-pull-test
+spec:
+  completions: 60
+  parallelism: 60
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+      - name: ffmpeg
+        image: "ossrs/oryx:v5.15.20"
+        imagePullPolicy: IfNotPresent
+        # resources:
+        #   limits:
+        #     cpu: 4
+        #     memory: "10Gi"
+        #   requests:
+        #     cpu: 3
+        #     memory: "10Gi"
+        command:
+        - bash
+        - -c
+        - |-
+          echo "pull live streams by ffmpeg"
+          echo "start 200 ffmpeg processes to pull streams"
+          for ((i=1;i<=50;i++));
+          do
+            # generate random number in range [1-50], represent which stream.
+            r=`shuf -i 1-40 -n 1`
+            echo $r
+            # http://127.0.0.1/live/livestream.m3u8
+            # https://stream.jars.ai/live/naturalworldai.m3u8
+            # https://stream.jars.ai/live/livestream.m3u8
+            # https://stream.jars.ai/live/jarscourtai.m3u8
+            # https://stream.jars.ai/live/fortuneteller.m3u8
+            # https://stream.jars.ai/live/pawnjars.m3u8
+            # https://stream.jars.ai/live/loveaisland.m3u8
+            # https://stream.jars.ai/live/yeschefai.m3u8
+            # https://stream.jars.ai/live/electionshowdown.m3u8
+            # ffmpeg -nostdin -loglevel quiet -i http://127.0.0.1/live/livestream.m3u8 -f null - &
+            if [[ $r -eq 1 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/naturalworldai.m3u8 -c copy -f null - &
+            elif [[ $r -eq 2 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/naturalworldai.m3u8 -c copy -f null - &
+            elif [[ $r -eq 3 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/jarscourtai.m3u8 -c copy -f null - &
+            elif [[ $r -eq 4 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/fortuneteller.m3u8 -c copy -f null - &
+            elif [[ $r -eq 5 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/pawnjars.m3u8 -c copy -f null - &
+            elif [[ $r -eq 6 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/pawnjars.m3u8 -c copy -f null - &
+               # ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/loveaisland.m3u8 -c copy -f null - &
+            elif [[ $r -eq 7 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/yeschefai.m3u8 -c copy -f null - &
+            elif [[ $r -eq 8 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/electionshowdown.m3u8 -c copy -f null - &
+            else
+               echo "play: else"
+               n=`shuf -i 1-34 -n 1`
+               ffmpeg -nostdin -loglevel quiet -i https://stream.jars.ai/live/test${n}.m3u8 -c copy -f null - &
+            fi
+          done
+          while true; do
+            sleep 1
+            if [[ $(ps aux |grep ffmpeg |grep -v grep |grep -v usr |grep -q ffmpeg || echo no) == no ]]; then
+              echo "all ffmpeg process done"
+              break
+            fi
+          done
+          echo "complete ffmpeg job"
+      restartPolicy: Never

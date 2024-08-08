@@ -1,0 +1,81 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ffmpeg-stream-forward
+spec:
+  completions: 1
+  parallelism: 1
+  ttlSecondsAfterFinished: 60
+  template:
+    spec:
+      containers:
+      - name: ffmpeg
+        image: "ossrs/oryx:v5.15.20"
+        imagePullPolicy: IfNotPresent
+        # resources:
+        #   limits:
+        #     cpu: 4
+        #     memory: "10Gi"
+        #   requests:
+        #     cpu: 3
+        #     memory: "10Gi"
+        command:
+        - bash
+        - -c
+        - |-
+          echo "forward 40 live streams by ffmpeg"
+          oryx_host="104.197.189.55"
+          secret="2b566a4d29304024a0b744466047668a"
+          for ((i=1;i<=34;i++));
+          do
+            # generate random number in range [1-50], represent which stream.
+            r=`shuf -i 1-8 -n 1`
+            echo $r
+            # http://127.0.0.1/live/livestream.m3u8
+            # https://stream.jars.ai/live/naturalworldai.m3u8
+            # https://stream.jars.ai/live/livestream.m3u8
+            # https://stream.jars.ai/live/jarscourtai.m3u8
+            # https://stream.jars.ai/live/fortuneteller.m3u8
+            # https://stream.jars.ai/live/pawnjars.m3u8
+            # https://stream.jars.ai/live/loveaisland.m3u8
+            # https://stream.jars.ai/live/yeschefai.m3u8
+            # https://stream.jars.ai/live/electionshowdown.m3u8
+            # ffmpeg -nostdin -loglevel quiet -i http://127.0.0.1/live/livestream.m3u8 -f null - &
+            if [[ $r -eq 1 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/naturalworldai -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 2 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/naturalworldai -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 3 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/jarscourtai -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 4 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/fortuneteller -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 5 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/pawnjars -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 6 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/pawnjars -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 7 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/yeschefai -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            elif [[ $r -eq 8 ]]; then
+               echo "play: $r"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/electionshowdown -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            else
+               echo "play: else"
+               ffmpeg -nostdin -loglevel quiet -i rtmp://${oryx_host}/live/electionshowdown -c copy -f flv rtmp://${oryx_host}/live/test${i}?secret=${secret} &
+            fi
+          done
+          while true; do
+            sleep 1
+            if [[ $(ps aux |grep ffmpeg |grep -v grep |grep -v usr |grep -q ffmpeg || echo no) == no ]]; then
+              echo "all ffmpeg process done"
+              break
+            fi
+          done
+          echo "complete ffmpeg job"
+      restartPolicy: Never
