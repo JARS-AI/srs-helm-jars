@@ -58,4 +58,14 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+    - host: "oryx-dev.jars.ai"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: oryx-host-name
+                port:
+                  number: 2080
 {{- end }}
