@@ -103,11 +103,11 @@ spec:
               value: "on"
           livenessProbe:
             httpGet:
-              path: /
+              path: /terraform/v1/mgmt/versions
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /terraform/v1/mgmt/versions
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
