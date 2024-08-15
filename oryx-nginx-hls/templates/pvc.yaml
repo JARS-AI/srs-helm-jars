@@ -6,11 +6,11 @@ metadata:
   labels:
     type: local
 spec:
-  storageClassName: srs-disk-storage
+  storageClassName: {{ .Values.persistence.className }}
   capacity:
     storage: {{ .Values.persistence.storage }}
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   hostPath:
     path: {{ .Values.persistence.path }}
     type: DirectoryOrCreate
