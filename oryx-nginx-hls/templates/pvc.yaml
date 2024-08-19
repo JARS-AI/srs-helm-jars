@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: srs-pv-volume
+  name: oryx-pv-volume
   labels:
     type: local
 spec:
@@ -14,17 +14,26 @@ spec:
   hostPath:
     path: {{ .Values.persistence.path }}
     type: DirectoryOrCreate
+  claimRef:
+    namespace: default
+    name: oryx-pv-claim
+  csi:
+    driver: pd.csi.storage.gke.io
+    volumeHandle: projects/genuine-plate-397416/zones/us-west1-b/disks/oryx-dev-cluster
+    fsType: ext4
 
 ---
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: srs-pv-claim
+  namespace: default
+  name: oryx-pv-claim
 spec:
-  storageClassName: srs-disk-storage
+  storageClassName: {{ .Values.persistence.className }}
+  volumeName: oryx-pv-volume
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.persistence.storage }}
