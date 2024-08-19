@@ -16,7 +16,7 @@ spec:
     name: oryx-pv-claim
   csi:
     driver: pd.csi.storage.gke.io
-    volumeHandle: projects/genuine-plate-397416/zones/us-west1-b/disks/oryx-dev-cluster
+    volumeHandle: projects/genuine-plate-397416/zones/us-central1-a/disks/oryx-cluster
     fsType: ext4
 
 ---
