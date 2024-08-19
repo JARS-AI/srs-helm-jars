@@ -10,10 +10,7 @@ spec:
   capacity:
     storage: {{ .Values.persistence.storage }}
   accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: {{ .Values.persistence.path }}
-    type: DirectoryOrCreate
+    - ReadWriteOnce
   claimRef:
     namespace: default
     name: oryx-pv-claim
@@ -33,7 +30,7 @@ spec:
   storageClassName: {{ .Values.persistence.className }}
   volumeName: oryx-pv-volume
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.persistence.storage }}
