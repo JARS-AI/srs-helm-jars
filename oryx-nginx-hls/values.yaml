@@ -86,6 +86,9 @@ service:
   https: 2443
   srt: 10080
   rtc: 8000
+  annotations:
+    networking.gke.io/load-balancer-ip-addresses: "oryx-dev-service-ip"
+    cloud.google.com/l4-rbs: "enabled"
 
 ingress:
   enabled: false
