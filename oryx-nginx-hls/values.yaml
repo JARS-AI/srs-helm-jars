@@ -21,7 +21,7 @@ replicaCount: 1
 conf:
   SRS_LOG_TANK: "console"
   # below four confs used to force HLS high performance and HLS Low Latency
-  SRS_VHOST_HLS_HLS_WINDOW: 16
+  SRS_VHOST_HLS_HLS_WINDOW: 6
   SRS_VHOST_HLS_HLS_CTX: "off"
   SRS_VHOST_HLS_HLS_TS_CTX: "off"
   # above four confs used to force HLS high performance and HLS Low Latency
