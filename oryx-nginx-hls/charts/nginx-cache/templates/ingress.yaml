@@ -65,7 +65,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: oryx-host-name
+                name: oryx-svc-tcp
                 port:
                   number: 2080
 {{- end }}

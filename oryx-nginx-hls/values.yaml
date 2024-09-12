@@ -10,8 +10,8 @@
 ##
 
 image:
-  repository: ossrs/oryx
-  tag: ""
+  repository: zpcat/oryx
+  tag: "v5.rtc"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -20,12 +20,24 @@ replicaCount: 1
 # See https://github.com/ossrs/srs/blob/develop/trunk/conf/full.conf
 conf:
   SRS_LOG_TANK: "console"
-  # below four confs used to force HLS high performance and HLS Low Latency
-  SRS_VHOST_HLS_HLS_WINDOW: 6
+  # check the global value hlsFragment which control the duration of one ts segment.
+  # HLS_WINDOW is the max media duration in m3u8 playlist, and is also the max video latency.
+  SRS_VHOST_HLS_HLS_WINDOW: 10
+  # HLS_CTX and HLS_TS_CTX must be off for nginx edge, they will make the nginx cache missed.
   SRS_VHOST_HLS_HLS_CTX: "off"
   SRS_VHOST_HLS_HLS_TS_CTX: "off"
   # above four confs used to force HLS high performance and HLS Low Latency
-
+  # config RTC Port protocol: "tcp", "udp", "all"
+  # Wether to enable WebRTC over TCP.
+  # if you want to config RTC over TCP only
+  # SRS_RTC_SERVER_PROTOCOL: "tcp"
+  # SRS_RTC_SERVER_TCP_ENABLED: "on"
+  # if you want to config RTC over both TCP and UDP
+  # SRS_RTC_SERVER_PROTOCOL: "all"
+  # SRS_RTC_SERVER_TCP_ENABLED: "on"
+  # if you want to config RTC over UDP only
+  SRS_RTC_SERVER_PROTOCOL: "udp"
+  SRS_RTC_SERVER_TCP_ENABLED: "off"
 # The environment variables to set in the container.
 # See https://github.com/ossrs/srs/blob/develop/trunk/conf/full.conf
 env: []
@@ -36,7 +48,9 @@ env: []
 # See https://ossrs.io/lts/en-us/docs/v5/doc/webrtc#config-candidate for details.
 # Note that if this value is not empty, it will override the SRS_RTC_SERVER_CANDIDATE value in
 # both the {{.Values.conf}} and {{.Values.env}}.
-candidate: ""
+# apply a public static IP, binding it to the {{ .Values.global.oryxSvcTcp }} service.
+# config candidate to this public static IP.
+candidate: "34.19.74.86" # service dev tcp ip
 
 imagePullSecrets: []
 nameOverride: ""
@@ -88,6 +102,9 @@ service:
   annotations:
     networking.gke.io/load-balancer-ip-addresses: "oryx-dev-service-ip"
     cloud.google.com/l4-rbs: "enabled"
+  annotationsUdp:
+    networking.gke.io/load-balancer-ip-addresses: "oryx-dev-service-udp-ip"
+    cloud.google.com/l4-rbs: "enabled"
 
 ingress:
   enabled: false
@@ -131,5 +148,8 @@ tolerations: []
 affinity: {}
 
 global:
-  oryxHostName: oryx-host-name
+  oryxSvcTcp: oryx-svc-tcp
+  oryxSvcUdp: oryx-svc-udp
+  # hlsFragment which control the duration of one ts segment.
+  # which must be equal or greater then the SRS_M3U8_EXPIRE in nginx-cache pod.
   hlsFragment: 2
